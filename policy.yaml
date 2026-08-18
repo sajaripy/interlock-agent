@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# Interlock policy.
+#
+# Maps a tool name to one of three modes, evaluated BEFORE the tool is
+# dispatched:
+#
+#   auto     -> run it, no human involved (still written to audit_log)
+#   approve  -> pause the graph, wait for a human decision
+#   deny     -> never run it; the agent is told it was blocked and continues
+#
+# Changing this file changes agent behaviour without touching any code.
+# It is re-read on every evaluation when `hot_reload` is true, so you can
+# tighten a policy while a run is parked at an approval.
+#
+# NOTE: each tool also declares a *floor* in code (app/tools/registry.py).
+# The floor is the least restrictive mode that tool will ever accept. If this
+# file says `auto` for a tool whose floor is `approve`, the floor wins and the
+# escalation is recorded in the audit log. A typo here cannot silently turn
+# off the interlock on an irreversible action.
+# ---------------------------------------------------------------------------
+
+version: 1
+hot_reload: true
+
+# Applied to any tool not listed below. Default-deny: a newly added tool is
+# blocked until someone deliberately grants it a mode.
+default: deny
+
+tools:
+  fetch_url:
+    mode: auto
+    reason: "Read-only HTTP GET. No side effects, cheap to retry."
+
+  create_ticket:
+    mode: approve
+    reason: "Writes a row to the tickets table. Reversible, but it is a write."
+
+  send_email:
+    mode: approve
+    reason: "Leaves the system and reaches a human. Never auto-approved."
+
+  # Example of an explicitly blocked tool. Uncomment a tool here to kill it
+  # in production without a redeploy.
+  # delete_ticket:
+  #   mode: deny
+  #   reason: "Destructive. Not permitted from the agent surface."

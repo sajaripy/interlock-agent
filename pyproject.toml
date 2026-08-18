@@ -1,0 +1,47 @@
+[project]
+name = "interlock-agent"
+version = "0.1.0"
+description = "A LangGraph agent that pauses for human approval before high-risk tool calls."
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "langgraph>=1.0",
+    "langgraph-checkpoint-postgres>=3.0",
+    "langchain-anthropic>=1.0",
+    "langchain-core>=1.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",
+    "psycopg[binary,pool]>=3.2",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "aiosmtplib>=3.0",
+    "streamlit>=1.36",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "aiosqlite>=0.20",
+]
+observability = [
+    "langfuse>=3.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
